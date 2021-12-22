@@ -8,10 +8,42 @@ T_element = Union[str, "Element", Callable[..., str]]
 T_attribute = Any
 
 
-class Element:
+class Meta:
+
+    children: list[T_element]
+
+    def __init__(
+        self,
+        *children: T_element,
+    ) -> None:
+        self.children = list(children)
+
+    def __str__(self) -> str:
+        return self.mount()
+
+    def mount(self) -> str:
+        return self.render(self.children)
+
+    def render(self, children: list[T_element]) -> str:
+        if children:
+            children_string = ""
+
+            for child in children:
+                if isinstance(child, Element):
+                    children_string += child.mount()
+                elif callable(child):
+                    children_string += child()
+                else:
+                    children_string += str(child)
+
+            return children_string
+
+        return ""
+
+
+class Element(Meta):
 
     tag: str
-    children: list[T_element]
     attributes: dict[str, T_attribute]
     indent: bool
     hydrogen_id: str
@@ -23,12 +55,10 @@ class Element:
         **attributes: T_attribute,
     ) -> None:
         self.tag = tag
-        self.children = list(children)
         self.attributes = attributes
         self.hydrogen_id = uuid.uuid4().hex[:6]
 
-    def __str__(self) -> str:
-        return self.mount()
+        super().__init__(*children)
 
     def mount(self) -> str:
         return self.render(self.children, self.attributes)
@@ -61,17 +91,9 @@ class Element:
 
         hydrogen_id_string = f'hydrogenid="{self.hydrogen_id}"'
 
-        if children:
-            children_string = ""
+        children_string = super().render(children)
 
-            for child in children:
-                if isinstance(child, Element):
-                    children_string += child.mount()
-                elif callable(child):
-                    children_string += child()
-                else:
-                    children_string += str(child)
-
+        if children_string:
             return f"<{self.tag} {hydrogen_id_string}{attributes_string}>{children_string}</{self.tag}>"
 
         return f"<{self.tag} {hydrogen_id_string}{attributes_string}/>"
