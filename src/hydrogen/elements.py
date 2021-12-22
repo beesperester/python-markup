@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import uuid
 
-from typing import Any, Callable, Dict, Tuple, Union, List
+from typing import Any, Callable, Union
 
 T_element = Union[str, "Element", Callable[..., str]]
 T_attribute = Any
@@ -11,8 +11,8 @@ T_attribute = Any
 class Element:
 
     tag: str
-    children: List[T_element]
-    attributes: Dict[str, T_attribute]
+    children: list[T_element]
+    attributes: dict[str, T_attribute]
     indent: bool
     hydrogen_id: str
 
@@ -34,7 +34,7 @@ class Element:
         return self.render(self.children, self.attributes)
 
     def render(
-        self, children: List[T_element], attributes: Dict[str, T_attribute]
+        self, children: list[T_element], attributes: dict[str, T_attribute]
     ) -> str:
         def format_attribute(key: str, value: Any) -> str:
             key = key.replace("class_name", "class")
@@ -214,9 +214,9 @@ class button(Element):
 
 
 def destructure(
-    attribute_names: List[str], attributes: Dict[str, T_attribute]
-) -> List[Any]:
-    values: List[T_attribute] = []
+    attribute_names: list[str], attributes: dict[str, T_attribute]
+) -> list[Any]:
+    values: list[T_attribute] = []
 
     for attribute_name in attribute_names:
         if attribute_name in attributes.keys():
@@ -229,7 +229,7 @@ def destructure(
     return values
 
 
-def merge_attributes(attributes, **extra_attributes: Any) -> Dict[str, Any]:
+def merge_attributes(attributes, **extra_attributes: Any) -> dict[str, Any]:
     merged_attributes = {**attributes}
 
     for key, value in extra_attributes.items():
