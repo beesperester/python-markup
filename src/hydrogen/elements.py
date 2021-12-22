@@ -51,6 +51,7 @@ class Element(Meta):
     tag: str
     indent: bool
     hydrogen_id: str
+    add_hydrogen_id: bool
 
     def __init__(
         self,
@@ -60,6 +61,7 @@ class Element(Meta):
     ) -> None:
         self.tag = tag
         self.hydrogen_id = uuid.uuid4().hex[:6]
+        self.add_hydrogen_id = True
 
         super().__init__(*children, **attributes)
 
@@ -92,7 +94,10 @@ class Element(Meta):
         if attributes_string:
             attributes_string = " " + attributes_string
 
-        hydrogen_id_string = f'hydrogenid="{self.hydrogen_id}"'
+        hydrogen_id_string = ""
+
+        if self.add_hydrogen_id:
+            hydrogen_id_string = f'hydrogenid="{self.hydrogen_id}"'
 
         children_string = super().render(children, attributes)
 
