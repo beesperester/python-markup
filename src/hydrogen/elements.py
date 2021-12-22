@@ -7,6 +7,22 @@ from typing import Any, Callable, Union
 T_element = Union[str, "Element", Callable[..., str]]
 T_attribute = Any
 
+SELF_CLOSING_TAGS: list[str] = [
+    "area",
+    "base",
+    "br",
+    "col",
+    "embed",
+    "hr",
+    "img",
+    "link",
+    "meta",
+    "param",
+    "source",
+    "track",
+    "wbr",
+]
+
 
 class Meta:
 
@@ -101,7 +117,7 @@ class Element(Meta):
 
         children_string = super().render(children, attributes)
 
-        if children_string:
+        if children_string or self.tag not in SELF_CLOSING_TAGS:
             return f"<{self.tag} {hydrogen_id_string}{attributes_string}>{children_string}</{self.tag}>"
 
         return f"<{self.tag} {hydrogen_id_string}{attributes_string}/>"
