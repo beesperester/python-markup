@@ -31,9 +31,11 @@ class Element:
         return self.mount()
 
     def mount(self) -> str:
-        return self.render(*self.children, **self.attributes)
+        return self.render(self.children, self.attributes)
 
-    def render(self, *children: T_element, **attributes: T_attribute) -> str:
+    def render(
+        self, children: List[T_element], attributes: Dict[str, T_attribute]
+    ) -> str:
         def format_attribute(key: str, value: Any) -> str:
             key = key.replace("class_name", "class")
 
