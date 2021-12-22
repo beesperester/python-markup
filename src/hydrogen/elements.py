@@ -11,20 +11,25 @@ T_attribute = Any
 class Meta:
 
     children: list[T_element]
+    attributes: dict[str, T_attribute]
 
     def __init__(
         self,
         *children: T_element,
+        **attributes: T_attribute,
     ) -> None:
         self.children = list(children)
+        self.attributes = attributes
 
     def __str__(self) -> str:
         return self.mount()
 
     def mount(self) -> str:
-        return self.render(self.children)
+        return self.render(self.children, self.attributes)
 
-    def render(self, children: list[T_element]) -> str:
+    def render(
+        self, children: list[T_element], attributes: dict[str, T_attribute]
+    ) -> str:
         if children:
             children_string = ""
 
@@ -44,7 +49,6 @@ class Meta:
 class Element(Meta):
 
     tag: str
-    attributes: dict[str, T_attribute]
     indent: bool
     hydrogen_id: str
 
@@ -55,10 +59,9 @@ class Element(Meta):
         **attributes: T_attribute,
     ) -> None:
         self.tag = tag
-        self.attributes = attributes
         self.hydrogen_id = uuid.uuid4().hex[:6]
 
-        super().__init__(*children)
+        super().__init__(*children, **attributes)
 
     def mount(self) -> str:
         return self.render(self.children, self.attributes)
@@ -91,7 +94,7 @@ class Element(Meta):
 
         hydrogen_id_string = f'hydrogenid="{self.hydrogen_id}"'
 
-        children_string = super().render(children)
+        children_string = super().render(children, attributes)
 
         if children_string:
             return f"<{self.tag} {hydrogen_id_string}{attributes_string}>{children_string}</{self.tag}>"
