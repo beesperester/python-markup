@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from bs4 import BeautifulSoup
+import uuid
+
 from typing import Any, Callable, Dict, Tuple, Union, List
 
 T_element = Union[str, "Element", Callable[..., str]]
@@ -13,6 +14,7 @@ class Element:
     children: List[T_element]
     attributes: Dict[str, T_attribute]
     indent: bool
+    hydrogen_id: str
 
     def __init__(
         self,
@@ -23,15 +25,13 @@ class Element:
         self.tag = tag
         self.children = list(children)
         self.attributes = attributes
+        self.hydrogen_id = uuid.uuid4().hex[:6]
 
     def __str__(self) -> str:
         return self.mount()
 
     def mount(self) -> str:
         return self.render(*self.children, **self.attributes)
-
-    def prettify(self) -> str:
-        return BeautifulSoup(self.mount(), "html.parser").prettify()
 
     def render(self, *children: T_element, **attributes: T_attribute) -> str:
         def format_attribute(key: str, value: Any) -> str:
@@ -57,6 +57,8 @@ class Element:
         if attributes_string:
             attributes_string = " " + attributes_string
 
+        hydrogen_id_string = f'hydrogenid="{self.hydrogen_id}"'
+
         if children:
             children_string = ""
 
@@ -68,9 +70,9 @@ class Element:
                 else:
                     children_string += str(child)
 
-            return f"<{self.tag}{attributes_string}>{children_string}</{self.tag}>"
+            return f"<{self.tag} {hydrogen_id_string}{attributes_string}>{children_string}</{self.tag}>"
 
-        return f"<{self.tag}{attributes_string}/>"
+        return f"<{self.tag} {hydrogen_id_string}{attributes_string}/>"
 
 
 # assorted html elements
@@ -84,6 +86,21 @@ class html(Element):
 class head(Element):
     def __init__(self, *children: T_element, **attributes: Any) -> None:
         super().__init__("head", *children, **attributes)
+
+
+class title(Element):
+    def __init__(self, *children: T_element, **attributes: Any) -> None:
+        super().__init__("title", *children, **attributes)
+
+
+class style(Element):
+    def __init__(self, *children: T_element, **attributes: Any) -> None:
+        super().__init__("style", *children, **attributes)
+
+
+class script(Element):
+    def __init__(self, *children: T_element, **attributes: Any) -> None:
+        super().__init__("script", *children, **attributes)
 
 
 class body(Element):
@@ -139,6 +156,21 @@ class h5(Element):
 class h6(Element):
     def __init__(self, *children: T_element, **attributes: Any) -> None:
         super().__init__("h6", *children, **attributes)
+
+
+class ol(Element):
+    def __init__(self, *children: T_element, **attributes: Any) -> None:
+        super().__init__("ol", *children, **attributes)
+
+
+class dl(Element):
+    def __init__(self, *children: T_element, **attributes: Any) -> None:
+        super().__init__("dl", *children, **attributes)
+
+
+class dd(Element):
+    def __init__(self, *children: T_element, **attributes: Any) -> None:
+        super().__init__("dd", *children, **attributes)
 
 
 class ul(Element):
