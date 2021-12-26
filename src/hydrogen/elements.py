@@ -141,6 +141,16 @@ class title(Element):
         super().__init__("title", *children, **attributes)
 
 
+class meta(Element):
+    def __init__(self, *children: T_element, **attributes: T_attribute) -> None:
+        super().__init__("meta", *children, **attributes)
+
+
+class link(Element):
+    def __init__(self, *children: T_element, **attributes: T_attribute) -> None:
+        super().__init__("link", *children, **attributes)
+
+
 class style(Element):
     def __init__(self, *children: T_element, **attributes: Any) -> None:
         super().__init__("style", *children, **attributes)
