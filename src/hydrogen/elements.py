@@ -70,8 +70,6 @@ class Element(Meta):
 
     tag: str
     indent: bool
-    hydrogen_id: str
-    add_hydrogen_id: bool
 
     def __init__(
         self,
@@ -80,8 +78,6 @@ class Element(Meta):
         **attributes: T_attribute,
     ) -> None:
         self.tag = tag
-        self.hydrogen_id = uuid.uuid4().hex[:6]
-        self.add_hydrogen_id = True
 
         super().__init__(*children, **attributes)
 
@@ -114,17 +110,12 @@ class Element(Meta):
         if attributes_string:
             attributes_string = " " + attributes_string
 
-        hydrogen_id_string = ""
-
-        if self.add_hydrogen_id:
-            hydrogen_id_string = f'hydrogenid="{self.hydrogen_id}"'
-
         children_string = super().render(children, attributes)
 
         if children_string or self.tag not in SELF_CLOSING_TAGS:
-            return f"<{self.tag} {hydrogen_id_string}{attributes_string}>{children_string}</{self.tag}>"
+            return f"<{self.tag} {attributes_string}>{children_string}</{self.tag}>"
 
-        return f"<{self.tag} {hydrogen_id_string}{attributes_string}/>"
+        return f"<{self.tag} {attributes_string}/>"
 
 
 # utility functions
