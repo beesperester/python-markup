@@ -147,7 +147,7 @@ def destructure(
 
         values.append(value)
 
-        if not isinstance(value, attribute_default_value.__class__):
+        if value and not isinstance(value, attribute_default_value.__class__):
             raise DestructureError(
                 f"Value for '{attribute_name}' must be of type '{attribute_default_value.__class__.__name__}' is '{value.__class__.__name__}'"
             )
