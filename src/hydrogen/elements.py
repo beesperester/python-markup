@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import uuid
 
-from typing import Any, Callable, Union
+from typing import Any, Callable, Type, Union
 
 T_element = Union[str, "Element", Callable[..., str]]
 T_attribute = Any
@@ -22,6 +22,10 @@ SELF_CLOSING_TAGS: list[str] = [
     "track",
     "wbr",
 ]
+
+
+class DestructureError(Exception):
+    ...
 
 
 class Meta:
@@ -127,33 +131,40 @@ class Element(Meta):
 
 
 def destructure(
-    attribute_names: list[str], attributes: dict[str, T_attribute]
+    attribute_definitions: list[tuple[str, Type]], attributes: dict[str, T_attribute]
 ) -> list[Any]:
     values: list[T_attribute] = []
 
-    for attribute_name in attribute_names:
+    for attribute_name, attribute_type in attribute_definitions:
+        value = None
+
         if attribute_name in attributes.keys():
-            values.append(attributes[attribute_name])
+            value = attributes[attribute_name]
 
             del attributes[attribute_name]
-        else:
-            values.append(None)
+
+        values.append(value)
+
+        if value and not isinstance(value, attribute_type):
+            raise DestructureError(
+                f"Value for '{attribute_name}' must be of type '{attribute_type.__name__}' is '{value.__class__.__name__}'"
+            )
 
     return values
 
 
-def merge_attributes(attributes, **extra_attributes: Any) -> dict[str, Any]:
-    merged_attributes = {**attributes}
+def extend_attributes(attributes, **extra_attributes: Any) -> dict[str, Any]:
+    extended_attributes = {**attributes}
 
     for key, value in extra_attributes.items():
-        if key in merged_attributes.keys():
-            merged_attributes_value = merged_attributes[key]
+        if key in extended_attributes.keys():
+            extended_attributes_value = extended_attributes[key]
 
-            if isinstance(merged_attributes_value, str) and isinstance(value, str):
-                merged_attributes[key] = " ".join(
-                    list(set(merged_attributes_value.split(" ") + value.split(" ")))
+            if isinstance(extended_attributes_value, str) and isinstance(value, str):
+                extended_attributes[key] = " ".join(
+                    list(set(extended_attributes_value.split(" ") + value.split(" ")))
                 )
         else:
-            merged_attributes[key] = value
+            extended_attributes[key] = value
 
-    return merged_attributes
+    return extended_attributes
