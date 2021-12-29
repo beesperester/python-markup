@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import uuid
 
-from typing import Any, Callable, Type, Union
+from typing import Any, Callable, Union
 
 T_element = Union[str, "Element", Callable[..., str]]
 T_attribute = Any
@@ -131,23 +131,25 @@ class Element(Meta):
 
 
 def destructure(
-    attribute_definitions: list[tuple[str, Type]], attributes: dict[str, T_attribute]
+    attribute_definitions: list[tuple[str, Any]], attributes: dict[str, T_attribute]
 ) -> list[Any]:
     values: list[T_attribute] = []
 
-    for attribute_name, attribute_type in attribute_definitions:
+    for attribute_name, attribute_default_value in attribute_definitions:
         value = None
 
         if attribute_name in attributes.keys():
             value = attributes[attribute_name]
 
             del attributes[attribute_name]
+        else:
+            value = attribute_default_value
 
         values.append(value)
 
-        if value and not isinstance(value, attribute_type):
+        if not isinstance(value, attribute_default_value.__class__):
             raise DestructureError(
-                f"Value for '{attribute_name}' must be of type '{attribute_type.__name__}' is '{value.__class__.__name__}'"
+                f"Value for '{attribute_name}' must be of type '{attribute_default_value.__class__.__name__}' is '{value.__class__.__name__}'"
             )
 
     return values
