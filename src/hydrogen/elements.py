@@ -45,7 +45,7 @@ class Meta:
         return self.mount()
 
     def mount(self) -> str:
-        return self.render(self.children, self.attributes)
+        return self.render(self.children.copy(), self.attributes.copy())
 
     def render(
         self, children: list[T_element], attributes: dict[str, T_attribute]
@@ -80,9 +80,6 @@ class Element(Meta):
         self.tag = tag
 
         super().__init__(*children, **attributes)
-
-    def mount(self) -> str:
-        return self.render(self.children, self.attributes)
 
     def render(
         self, children: list[T_element], attributes: dict[str, T_attribute]
@@ -121,7 +118,7 @@ class Element(Meta):
 # utility functions
 
 
-def destructure(
+def extract_attributes(
     attribute_definitions: list[tuple[str, Any]], attributes: dict[str, T_attribute]
 ) -> list[Any]:
     values: list[T_attribute] = []
