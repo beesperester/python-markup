@@ -95,6 +95,19 @@ class Element(Meta):
 
             return f'{key}="{value}"'
 
+        on_mount: str
+
+        on_mount, *_ = extract_attributes([("onmount", "")], attributes)
+
+        on_mount_string = ""
+
+        if on_mount:
+            on_mount = on_mount.replace(
+                "this", "document.currentScript.previousElementSibling"
+            )
+
+            on_mount_string = f"""<script type="text/javascript">{on_mount}</script>"""
+
         attributes_string = " ".join(
             [
                 format_attribute(key, value)
@@ -110,9 +123,9 @@ class Element(Meta):
         children_string = super().render(children, attributes)
 
         if children_string or self.tag not in SELF_CLOSING_TAGS:
-            return f"<{self.tag} {attributes_string}>{children_string}</{self.tag}>"
+            return f"<{self.tag} {attributes_string}>{children_string}</{self.tag}>{on_mount_string}"
 
-        return f"<{self.tag} {attributes_string}/>"
+        return f"<{self.tag} {attributes_string}/>{on_mount_string}"
 
 
 # utility functions
